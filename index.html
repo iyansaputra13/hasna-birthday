@@ -52,36 +52,6 @@
       font-size:0.72rem;font-weight:500;letter-spacing:0.32em;text-transform:uppercase;
       color:var(--y5);margin-bottom:1.25rem;
     }
-    .countdown-wrap{margin-bottom:0.75rem}
-    .countdown-digits{
-      display:-webkit-box;display:-ms-flexbox;display:flex;
-      -webkit-box-align:flex-end;-ms-flex-align:flex-end;align-items:flex-end;
-      -webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;
-      gap:0.3rem;
-    }
-    .cd-block{
-      display:-webkit-box;display:-ms-flexbox;display:flex;
-      -webkit-box-orient:vertical;-webkit-box-direction:normal;
-      -ms-flex-direction:column;flex-direction:column;
-      -webkit-box-align:center;-ms-flex-align:center;align-items:center;
-    }
-    .cd-num{
-      font-family:'Playfair Display',Georgia,serif;
-      font-size:4rem;font-weight:700;
-      color:var(--y5);line-height:1;
-      text-shadow:0 4px 24px rgba(197,150,18,.2);
-      min-width:1.8ch;text-align:center;
-    }
-    .cd-sep{
-      font-family:'Playfair Display',Georgia,serif;
-      font-size:3.5rem;font-weight:700;
-      color:var(--y3);line-height:1;padding-bottom:0.1em;
-      animation:blink 1s step-start infinite;
-    }
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
-    .cd-label{font-size:0.6rem;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--y5);margin-top:0.3rem}
-    .countdown-caption{margin-top:0.75rem;font-size:0.78rem;color:var(--text-mid);font-weight:300}
-
     .divider{
       width:60px;height:2px;
       background:linear-gradient(90deg,transparent,var(--y4),transparent);
@@ -287,25 +257,31 @@
       font-family:'DM Sans',Arial,sans-serif;
       box-shadow:0 4px 16px rgba(197,150,18,.3);
     }
+    /* ══ MUSIC BUTTON ══ */
+    .music-btn{
+      position:fixed;bottom:1.25rem;right:1.25rem;z-index:9500;
+      width:54px;height:54px;border-radius:50%;
+      background:linear-gradient(135deg,var(--y3),var(--y5));
+      border:none;box-shadow:0 4px 16px rgba(197,150,18,.4);
+      font-size:1.6rem;line-height:1;
+      display:-webkit-box;display:-ms-flexbox;display:flex;
+      -webkit-box-align:center;-ms-flex-align:center;align-items:center;
+      -webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;
+      cursor:pointer;animation:music-pulse 2s ease-in-out infinite;
+    }
+    @keyframes music-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    .music-btn.playing{animation:spin-slow 4s linear infinite}
   </style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
 
+<button id="music-toggle" class="music-btn" onclick="toggleMusic()" title="Putar musik">🎵</button>
+
 <!-- HERO -->
 <section class="hero">
   <p class="hero-eyebrow">🌼 Spesial Untuk</p>
-  <div class="countdown-wrap">
-    <div class="countdown-digits" id="cd-digits">
-      <div class="cd-block"><span class="cd-num" id="cd-h">00</span><span class="cd-label">jam</span></div>
-      <span class="cd-sep">:</span>
-      <div class="cd-block"><span class="cd-num" id="cd-m">00</span><span class="cd-label">menit</span></div>
-      <span class="cd-sep">:</span>
-      <div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-label">detik</span></div>
-    </div>
-    <p class="countdown-caption" id="cd-caption">menuju tengah malam 🌙</p>
-  </div>
   <div class="divider"></div>
   <div class="headline">
     <h1 class="headline-name">Hasna <em>Anzani</em><br>Putri</h1>
@@ -378,30 +354,10 @@
 </div>
 
 <script>
-/* ── COUNTDOWN ── */
-var midnightTriggered = false;
-
-function updateCountdown() {
-  var now  = new Date();
-  var next = new Date(now);
-  next.setHours(24,0,0,0);
-  var diff = next - now;
-  var h = Math.floor(diff/3600000);
-  var m = Math.floor((diff%3600000)/60000);
-  var s = Math.floor((diff%60000)/1000);
-  function pad(n){ return String(n).length < 2 ? '0'+n : String(n); }
-
-  if (!midnightTriggered && h===0 && m===0 && s===0) {
-    midnightTriggered = true;
-    triggerMidnight();
-    return;
-  }
-  document.getElementById('cd-h').textContent = pad(h);
-  document.getElementById('cd-m').textContent = pad(m);
-  document.getElementById('cd-s').textContent = pad(s);
-}
-updateCountdown();
-setInterval(updateCountdown, 1000);
+/* ── AUTO TRIGGER ON LOAD ── */
+window.addEventListener('load', function(){
+  setTimeout(triggerMidnight, 500);
+});
 
 /* ── MIDNIGHT SEQUENCE ── */
 function triggerMidnight() {
@@ -546,9 +502,76 @@ function playCelebrationChime(){
     });
   }catch(e){}
 }
-window.addEventListener('load',function(){setTimeout(playCelebrationChime,800);});
 var soundPlayed=false;
 document.body.addEventListener('touchstart',function(){if(!soundPlayed){playCelebrationChime();soundPlayed=true;}},{once:true});
+
+/* ── PIANO: HAPPY BIRTHDAY MELODY ── */
+var hbNotes = [
+  {f:392.00,d:0.30},{f:392.00,d:0.15},{f:440.00,d:0.45},{f:392.00,d:0.45},{f:523.25,d:0.45},{f:493.88,d:0.90},
+  {f:392.00,d:0.30},{f:392.00,d:0.15},{f:440.00,d:0.45},{f:392.00,d:0.45},{f:587.33,d:0.45},{f:523.25,d:0.90},
+  {f:392.00,d:0.30},{f:392.00,d:0.15},{f:783.99,d:0.45},{f:659.25,d:0.45},{f:523.25,d:0.45},{f:493.88,d:0.45},{f:440.00,d:0.90},
+  {f:698.46,d:0.45},{f:698.46,d:0.45},{f:659.25,d:0.45},{f:523.25,d:0.45},{f:587.33,d:0.45},{f:523.25,d:1.20}
+];
+
+var musicCtx = null;
+var musicPlaying = false;
+var musicTimer = null;
+
+function playPianoNote(ctx, freq, startTime, dur){
+  // fundamental
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  osc.connect(gain); gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(0.28, startTime + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+  osc.start(startTime); osc.stop(startTime + dur + 0.05);
+
+  // soft overtone for a piano-ish timbre
+  var osc2 = ctx.createOscillator();
+  var gain2 = ctx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 2;
+  osc2.connect(gain2); gain2.connect(ctx.destination);
+  gain2.gain.setValueAtTime(0, startTime);
+  gain2.gain.linearRampToValueAtTime(0.08, startTime + 0.015);
+  gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + dur*0.6);
+  osc2.start(startTime); osc2.stop(startTime + dur + 0.05);
+}
+
+function scheduleMelody(){
+  var t = musicCtx.currentTime + 0.1;
+  var total = 0;
+  hbNotes.forEach(function(n){
+    playPianoNote(musicCtx, n.f, t, n.d);
+    t += n.d; total += n.d;
+  });
+  return total;
+}
+
+function toggleMusic(){
+  var btn = document.getElementById('music-toggle');
+  if(!musicCtx) musicCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(musicCtx.state === 'suspended') musicCtx.resume();
+
+  if(musicPlaying){
+    musicPlaying = false;
+    if(musicTimer) clearTimeout(musicTimer);
+    btn.textContent = '🎵';
+    btn.classList.remove('playing');
+  } else {
+    musicPlaying = true;
+    btn.textContent = '🎶';
+    btn.classList.add('playing');
+    (function loopMusic(){
+      if(!musicPlaying) return;
+      var dur = scheduleMelody();
+      musicTimer = setTimeout(loopMusic, (dur + 1.0) * 1000);
+    })();
+  }
+}
 </script>
 </body>
 </html>
